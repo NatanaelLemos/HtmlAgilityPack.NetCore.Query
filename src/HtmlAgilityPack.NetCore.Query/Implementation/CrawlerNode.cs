@@ -27,9 +27,6 @@ namespace HtmlAgilityPack.NetCore.Query.Implementation
             {
                 foreach (var attr in _node.Attributes)
                 {
-                    //yield return will return a pseudo-method that will run only if necessary
-                    //ex. if you run an Attributes.First(), this collection will build only the first element,
-                    //instead of build all items before return
                     yield return CrawlerNodeAttribute.Build(attr);
                 }
             }
