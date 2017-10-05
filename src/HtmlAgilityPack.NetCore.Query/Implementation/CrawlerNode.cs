@@ -87,12 +87,12 @@ namespace HtmlAgilityPack.NetCore.Query.Implementation
         {
             if (selector.StartsWith("."))
             {
-                if (Attributes.Any(a => a.Name.Equals("class") && a.Value.Contains(selector.Substring(1))))
+                if (Attributes.Any(a => a.Name.Equals("class") && ContainsSelector(a.Value, selector.Substring(1))))
                     yield return this;
             }
             else if (selector.StartsWith("#"))
             {
-                if (Attributes.Any(a => a.Name.Equals("id") && a.Value.Contains(selector.Substring(1))))
+                if (Attributes.Any(a => a.Name.Equals("id") && ContainsSelector(a.Value, selector.Substring(1))))
                     yield return this;
             }
             else if (selector.StartsWith("'") && selector.EndsWith("'"))
@@ -123,6 +123,16 @@ namespace HtmlAgilityPack.NetCore.Query.Implementation
                     if (reached != null) yield return reached;
                 }
             }
+        }
+
+        private bool ContainsSelector(string value, string selector)
+        {
+            if (value == selector) return true;
+            if (value.Contains($"{selector} ")) return true;
+            if (value.Contains($" {selector}")) return true;
+            if (value.Contains($" {selector} ")) return true;
+
+            return false;
         }
     }
 }
