@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using HtmlAgilityPack;
 using HtmlAgilityPack.NetCore.Query;
+using System.Threading.Tasks;
 
 namespace HtmlAgilityPack.NetCore.Query.Implementation
 {
@@ -30,6 +31,47 @@ namespace HtmlAgilityPack.NetCore.Query.Implementation
                     var doc = new HtmlDocument();
                     doc.LoadHtml(pageString);
                     return CrawlerNode.Build(doc.DocumentNode);
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                return null;
+            }
+        }
+
+        public async Task<INode> LoadAsync(string url)
+        {
+            try
+            {
+                if (!TestValidUrl(url))
+                {
+                    return null;
+                }
+
+                HttpClient client = null;
+                HttpResponseMessage response = null;
+                Stream resultStream = null;
+                StreamReader reader = null;
+
+                try
+                {
+                    client = new HttpClient();
+                    response = await client.GetAsync(url);
+                    resultStream = await response.Content.ReadAsStreamAsync();
+
+                    reader = new StreamReader(resultStream, Encoding.UTF8);
+
+                    var pageString = reader.ReadToEnd();
+                    var doc = new HtmlDocument();
+                    doc.LoadHtml(pageString);
+                    return CrawlerNode.Build(doc.DocumentNode);
+                }
+                finally
+                {
+                    if (client != null) client.Dispose();
+                    if (response != null) response.Dispose();
+                    if (resultStream != null) resultStream.Dispose();
+                    if (reader != null) reader.Dispose();
                 }
             }
             catch (InvalidOperationException)
